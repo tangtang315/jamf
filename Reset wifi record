@@ -1,0 +1,27 @@
+#!/bin/bash
+
+#set interface name and network name to remove
+interfaceName="Wi-Fi"
+networkName1="LLX-Staff"
+networkName2="LLX-Staff-2.4G"
+
+# get adapter name
+Adapter=`networksetup -listallhardwareports | grep -A 1 "Wi-Fi" | grep Device | awk '{print $2}'`
+
+# remove preferred network
+if networksetup -listpreferredwirelessnetworks \$Adapter | grep "\$networkName1"; then
+ echo "Target SSID Found, Deleting"
+ networksetup -removepreferredwirelessnetwork \$Adapter "\$networkName1"
+fi
+
+if networksetup -listpreferredwirelessnetworks \$Adapter | grep "\$networkName2"; then
+ echo "Target SSID Found, Deleting"
+ networksetup -removepreferredwirelessnetwork \$Adapter "\$networkName2"
+fi
+
+# delete remembered password
+currentUser=$(stat -f "%Su" /dev/console)
+security delete-generic-password -l "$networkName1" /Users/$currentUser/Library/Keychains/login.keychain-db
+security delete-generic-password -l "$networkName2" /Users/$currentUser/Library/Keychains/login.keychain-db
+
+exit 0
