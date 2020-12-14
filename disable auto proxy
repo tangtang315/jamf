@@ -1,0 +1,30 @@
+#!/bin/sh
+####################################################################################################
+#
+# More information: https://macmule.com/2014/12/07/how-to-change-the-automatic-proxy-configuration-url-in-system-preferences-via-a-script/
+#
+# GitRepo: https://github.com/macmule/setAutomaticProxyConfigurationURL
+#
+# License: http://macmule.com/license/
+#
+####################################################################################################
+
+# HARDCODED VALUES ARE SET HERE
+autoProxyURL="http://192.168.2.110:6888/pac"
+# CHECK TO SEE IF A VALUE WAS PASSED FOR $4, AND IF SO, ASSIGN IT
+if [ "$4" != "" ] && [ "$autoProxyURL" == "" ]; then
+    autoProxyURL=$4
+fi
+# Detects all network hardware & creates services for all installed network hardware
+/usr/sbin/networksetup -detectnewhardware
+IFS=$'\n'
+    #Loops through the list of network services
+    for i in $(networksetup -listallnetworkservices | tail +2 );
+    do
+        # Enable auto proxy once set
+        /usr/sbin/networksetup -setautoproxystate "$i" off
+        echo "Turned off auto proxy for $i"
+    done
+unset IFS
+# Echo that we're done
+echo "Auto proxy has be disabled for all targeted interfaces"
