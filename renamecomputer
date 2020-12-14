@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# This script is used to change computer name to current logged in user
+# find current logged in user
+currentUser=`stat -f "%Su" /dev/console`
+correctName=$currentUser
+
+# get current computer name
+currentHostName=$(scutil --get HostName)
+currentCompName=$(scutil --get ComputerName)
+currentLocalHostName=$(scutil --get LocalHostName)
+
+# Fix ComputerName
+if [[ -z ${currentHostName} ]] || [[ ! ${currentCompName} == ${correctName} ]]; then 
+	/usr/sbin/scutil --set ComputerName "$correctName"
+   
+fi
+
+# Fix LocalHostName
+if [[ -z ${currentLocalHostName} ]] || [[ ! ${currentLocalHostName} == ${correctName} ]]; then
+	/usr/sbin/scutil --set LocalHostName "$correctName"
+fi
+
+# Fix HostName
+if [[ -z ${currentHostName} ]] || [[ ! ${currentHostName} == ${correctName} ]]; then
+	/usr/sbin/scutil --set HostName "$correctName"
+fi
+
+# Update Jamf Record
+/usr/local/jamf/bin/jamf recon
